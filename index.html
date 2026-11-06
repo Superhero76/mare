@@ -14,7 +14,7 @@
    TEXTE_CHIFFRE : ligne produite par editeur_texte.html
    ============================================================ */
 const TITRE = "La mare aux grenouilles";
-const TEXTE_CHIFFRE = "ORI4GsDKw06VxRhPhzTFD3tAfAbnMiD89ropui6cIixRfDI2Q+u5tp3pAkHcgED1/rF7CUczp8G1tFW7//WJrtTgjTt7qy+BMn6/DzNaddc4T43ib5o8APz4CtjSJgOCLz+w/9sl";
+const TEXTE_CHIFFRE = "a9eCeP9RXoshWgGf7GUDg1YOfvXkdiSDnW7TISeJFskI/5AzZCPqIerMAnzP5te7JH2Umt6WPo0/8IWRD0oI9IMi/4fYbeSaOmTxYjISibMn2pURHandIAZ8m0iSmiupmDsaoVabG4TBTgUQ0VV+Iydjh3ib49N8QXxPOxzDfeb146xYSO1O33FZeoDzKhvvQSl9SFV6tzJkgH/YGB69TzktiBkTeAInwLgjpInSbZv+l6Q5TAQdGv0n4Ueg/s8+N4hZLGbUaOr7J3NE7MVEqVxdZY67RkUm5s3BJ59tpQo5bTjuQs5xeYF3MINaubaMgF8r16M/BgoOlVIE4kACPD7nfA==";
 /* ============================================================ */
 </script>
 <style>
@@ -73,6 +73,7 @@ button.action:focus-visible{outline:3px solid #5FA84A;outline-offset:2px}
 .fin{background:var(--carte);border-radius:16px;padding:18px 16px;display:flex;flex-direction:column;gap:12px}
 .fin h2{margin:0;font-size:1.5rem;line-height:1.1}
 .texte{white-space:pre-wrap;word-break:break-word;font-size:1.15rem;font-weight:600;margin:0;padding:14px;border-radius:12px;background:var(--fond-2)}
+.texte a{color:inherit;font-weight:700;text-decoration:underline}
 [hidden]{display:none!important}
 @media (prefers-reduced-motion: reduce){.case.pose svg.gren,.grille.secoue{animation:none}}
 </style>
@@ -323,6 +324,17 @@ $("effacer").addEventListener("click", () => {
   $("message").textContent = ""; $("message").className = "message";
 });
 
+/* Les adresses du texte final deviennent des liens ; le reste reste du texte. */
+function afficherTexte(el, s) {
+  el.textContent = ""; let p = 0;
+  for (const m of s.matchAll(/https?:\/\/[^\s<>"']+/g)) {
+    const u = m[0].replace(/[.,;:!?)»]+$/, ""), a = document.createElement("a");
+    a.href = u; a.textContent = u;
+    el.append(s.slice(p, m.index), a); p = m.index + u.length;
+  }
+  el.append(s.slice(p));
+}
+
 function terminer() {
   $("jeu").hidden = true; $("fin").hidden = false; dessinerNenuphars();
   $("etape").textContent = "Trois grilles sur trois";
@@ -330,7 +342,7 @@ function terminer() {
   setTimeout(() => {
     let r = null;
     try { r = Chiffre.dechiffrer(TEXTE_CHIFFRE, etat.resolues.join("|")); } catch (e) {}
-    t.textContent = r === null ? "Le texte n'a pas pu être déchiffré. Rejouez depuis le début." : r;
+    afficherTexte(t, r === null ? "Le texte n'a pas pu être déchiffré. Rejouez depuis le début." : r);
   }, 30);
 }
 $("copier").addEventListener("click", async () => {

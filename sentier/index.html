@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Le sentier balisé</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect x='10' y='22' width='80' height='22' fill='white' stroke='%23999' stroke-width='3'/><rect x='10' y='56' width='80' height='22' fill='%23C8372D'/></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&display=swap" rel="stylesheet">
+<script>
+/* ============================================================
+   PARAMÈTRES — seules lignes à modifier
+   TEXTE_CHIFFRE : ligne produite par editeur_sentier.html
+   ============================================================ */
+const TITRE = "Le sentier balisé";
+const TEXTE_CHIFFRE = "vygyTNzxoHmt03oZ7JULj1166H1nYXYD6arN+3EJmJVysu80dK+tW4XnUBhyLyVvyY8Pp/IYDAoqRDzvZg5k2wEqNvxaliK8ymLG7MQKhw4nvo0ztxSGgSAEQZG6G79IBEMLY6xvJwgfSyM9H69Ta2u/MkwHCa1hCBvHNJN3jLG7hj/iGC1o+5KucC5tiJHBVurv8VdoJdCKlL0Jm0znvCGJN7rAFWCHvaBLm7Tk9gOTvdlwnATvcx+SEmiL9RBxpRGQtwkou9soqV/tyn97t/OGan4kmVprNJE6c/OdK1SdJY7+6NbGIZ1Li603O+aSEurQWCKUXiOlcdRXtb9DWqNzWj8Tb52XF0ytF/qP4QlgtguvCsh/7eKR44EOSgX0yTA5jGXkiQCF15RpkrweEm7f7uhCutRvcpSVI/fAG3a6obasnxe8+84mifGxmqHIeWkoYvTe9Hm9bQl1/qVXv9VKUiRjfxad";
+/* ============================================================ */
+</script>
+<style>
+:root{
+  --papier:#EBEFE8; --papier-2:#DCE3D8; --encre:#2B332E; --encre-douce:#5E6B62; --carte:#F8FAF7;
+  --gr:#C8372D; --point:#2B332E; --croix:#8A968D; --ok:#2F8F5B; --non:#B8434F;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){ --papier:#1A1F1C; --papier-2:#252C27; --encre:#E7ECE8; --encre-douce:#A7B3AA; --carte:#232A25; --point:#E7ECE8; --croix:#77837A; }
+}
+*,*::before,*::after{box-sizing:inherit}
+html{height:100%}
+body{margin:0;min-height:100%;background:var(--papier);color:var(--encre);
+  font-family:"Baloo 2",ui-rounded,"Segoe UI Rounded","Arial Rounded MT Bold",system-ui,sans-serif;
+  font-size:17px;line-height:1.4;-webkit-tap-highlight-color:transparent}
+main{max-width:520px;margin:0 auto;padding:18px 16px 32px;display:flex;flex-direction:column;gap:14px}
+h1{font-size:1.9rem;font-weight:800;line-height:1.05;margin:4px 0 0}
+.etapes{display:flex;align-items:center;gap:10px}
+.etapes p{margin:0;color:var(--encre-douce);font-weight:500}
+.balises{display:flex;gap:7px;margin-left:auto}
+.balise{width:26px;height:18px;display:flex;flex-direction:column;gap:2px;opacity:.35}
+.balise i{flex:1;border-radius:1px}
+.balise i:first-child{background:#fff;border:1px solid #9AA39C}
+.balise i:last-child{background:var(--gr)}
+.balise.fait{opacity:1}
+.balise.actif{opacity:1;outline:2px solid var(--encre);outline-offset:2px;border-radius:2px}
+.balise.actif i:last-child{background:#E9B1AC}
+.regles{padding:12px 14px;background:var(--carte);border-radius:14px}
+.regles p{margin:0;font-weight:500}
+.regles p+p{margin-top:6px;color:var(--encre-douce);font-size:.93rem}
+.plateau{width:min(100%,470px);align-self:center;background:var(--carte);border-radius:14px;padding:4px}
+svg.grille{display:block;width:100%;height:auto;touch-action:none;user-select:none;-webkit-user-select:none;cursor:pointer}
+.grille text{font-family:inherit;font-weight:700;fill:var(--encre);text-anchor:middle;dominant-baseline:central}
+.barre{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.compte{font-weight:700;font-size:1.05rem;flex-basis:100%}
+button.action{font:inherit;font-weight:700;font-size:1rem;border-radius:999px;padding:9px 18px;cursor:pointer;border:2px solid var(--encre)}
+button.principal{background:var(--encre);color:var(--papier);margin-left:auto}
+button.principal:disabled{opacity:.35;cursor:default}
+button.second{background:transparent;color:var(--encre)}
+button.action:focus-visible{outline:3px solid var(--gr);outline-offset:2px}
+.message{min-height:1.5em;margin:0;font-weight:600}
+.message.non{color:var(--non)} .message.ok{color:var(--ok)}
+.secoue{animation:secoue .35s}
+@keyframes secoue{20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(3px)}}
+.fin{background:var(--carte);border-radius:16px;padding:18px 16px;display:flex;flex-direction:column;gap:12px}
+.fin h2{margin:0;font-size:1.5rem;line-height:1.1}
+.texte{white-space:pre-wrap;word-break:break-word;font-size:1.15rem;font-weight:600;margin:0;padding:14px;border-radius:12px;background:var(--papier-2)}
+.texte a{color:inherit;font-weight:700;text-decoration:underline}
+[hidden]{display:none!important}
+@media (prefers-reduced-motion: reduce){.secoue{animation:none}}
+</style>
+</head>
+<body>
+<main>
+  <h1 id="titre"></h1>
+  <div class="etapes"><p id="etape"></p><div class="balises" id="balises" aria-hidden="true"></div></div>
+
+  <section id="jeu">
+    <div class="regles">
+      <p>Tracez une seule boucle fermée en reliant les points par des traits horizontaux ou verticaux. Chaque chiffre indique combien de côtés de sa case le sentier emprunte. La boucle ne se croise jamais et ne se ramifie pas.</p>
+      <p>Touchez un côté de case pour y tracer le sentier, touchez-le encore pour le barrer d'une croix. Glissez le doigt de point en point pour tracer plusieurs segments d'un coup.</p>
+    </div>
+    <div class="plateau" id="plateau" style="margin:14px auto 0"></div>
+    <div class="barre" style="margin-top:14px">
+      <span class="compte" id="compte"></span>
+      <button class="action second" id="effacer" type="button">Tout effacer</button>
+      <button class="action principal" id="verifier" type="button" disabled>Vérifier la boucle</button>
+    </div>
+    <p class="message" id="message" role="status" aria-live="polite"></p>
+  </section>
+
+  <section class="fin" id="fin" hidden>
+    <h2>Le sentier est balisé</h2>
+    <p class="texte" id="texte"></p>
+    <div class="barre">
+      <button class="action principal" id="copier" type="button" style="margin-left:0">Copier le texte</button>
+      <button class="action second" id="rejouer" type="button">Rejouer depuis le début</button>
+    </div>
+  </section>
+</main>
+
+<script>
+/* SHA-256 et chiffrement par flot : aucune dépendance, fonctionne en http comme en https */
+const Chiffre = (() => {
+  const K = new Uint32Array([0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2]);
+  function sha256(msg) {
+    const l = msg.length, nb = ((l + 9 + 63) >> 6) << 6, b = new Uint8Array(nb);
+    b.set(msg); b[l] = 0x80;
+    const bits = l * 8, dv = new DataView(b.buffer);
+    dv.setUint32(nb - 4, bits >>> 0); dv.setUint32(nb - 8, Math.floor(bits / 4294967296));
+    const H = new Uint32Array([0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19]);
+    const W = new Uint32Array(64);
+    const r = (x, n) => (x >>> n) | (x << (32 - n));
+    for (let o = 0; o < nb; o += 64) {
+      for (let i = 0; i < 16; i++) W[i] = dv.getUint32(o + i * 4);
+      for (let i = 16; i < 64; i++) {
+        const s0 = r(W[i-15],7) ^ r(W[i-15],18) ^ (W[i-15] >>> 3);
+        const s1 = r(W[i-2],17) ^ r(W[i-2],19) ^ (W[i-2] >>> 10);
+        W[i] = (W[i-16] + s0 + W[i-7] + s1) >>> 0;
+      }
+      let [a,bb,c,d,e,f,g,h] = H;
+      for (let i = 0; i < 64; i++) {
+        const t1 = (h + (r(e,6) ^ r(e,11) ^ r(e,25)) + ((e & f) ^ (~e & g)) + K[i] + W[i]) >>> 0;
+        const t2 = ((r(a,2) ^ r(a,13) ^ r(a,22)) + ((a & bb) ^ (a & c) ^ (bb & c))) >>> 0;
+        h = g; g = f; f = e; e = (d + t1) >>> 0; d = c; c = bb; bb = a; a = (t1 + t2) >>> 0;
+      }
+      H[0]+=a; H[1]+=bb; H[2]+=c; H[3]+=d; H[4]+=e; H[5]+=f; H[6]+=g; H[7]+=h;
+    }
+    const out = new Uint8Array(32), odv = new DataView(out.buffer);
+    for (let i = 0; i < 8; i++) odv.setUint32(i * 4, H[i]);
+    return out;
+  }
+  const cat = (...arrs) => { const n = arrs.reduce((s, a) => s + a.length, 0), o = new Uint8Array(n); let p = 0; for (const a of arrs) { o.set(a, p); p += a.length; } return o; };
+  const utf8 = s => new TextEncoder().encode(s);
+  const b64enc = u => { let s = ""; u.forEach(x => s += String.fromCharCode(x)); return btoa(s); };
+  const b64dec = s => Uint8Array.from(atob(s), c => c.charCodeAt(0));
+  function derive(cle, sel) {
+    let k = sha256(cat(sel, utf8(cle)));
+    for (let i = 0; i < 20000; i++) k = sha256(k);
+    return k;
+  }
+  function flot(k, n) {
+    const out = new Uint8Array(n);
+    for (let i = 0, p = 0; p < n; i++) {
+      const bloc = sha256(cat(k, new Uint8Array([i >>> 24, (i >>> 16) & 255, (i >>> 8) & 255, i & 255])));
+      for (let j = 0; j < 32 && p < n; j++) out[p++] = bloc[j];
+    }
+    return out;
+  }
+  function dechiffrer(blob, cle) {
+    const d = b64dec(blob), sel = d.slice(0, 16), chk = d.slice(16, 20), ct = d.slice(20);
+    const k = derive(cle, sel), v = sha256(cat(utf8("verif"), k)).slice(0, 4);
+    if (!v.every((x, i) => x === chk[i])) return null;
+    const f = flot(k, ct.length);
+    return new TextDecoder().decode(ct.map((x, i) => x ^ f[i]));
+  }
+  function chiffrer(texte, cle) {
+    const sel = crypto.getRandomValues(new Uint8Array(16)), k = derive(cle, sel);
+    const chk = sha256(cat(utf8("verif"), k)).slice(0, 4), pt = utf8(texte), f = flot(k, pt.length);
+    return b64enc(cat(sel, chk, pt.map((x, i) => x ^ f[i])));
+  }
+  return { chiffrer, dechiffrer };
+})();
+
+
+/* Grilles : indices uniquement [ligne, colonne, chiffre]. Les solutions ne figurent pas dans ce fichier. */
+const GRILLES = [{"R":5,"C":5,"indices":[[0,0,1],[0,2,2],[0,3,3],[0,4,1],[1,0,1],[2,0,1],[2,1,1],[2,2,2],[2,3,0],[2,4,2],[3,0,1],[3,2,3],[3,4,2],[4,0,0],[4,2,0]]},{"R":7,"C":7,"indices":[[0,1,2],[0,2,3],[0,3,3],[0,5,2],[1,3,2],[1,5,3],[2,0,1],[2,1,2],[2,2,1],[2,3,3],[2,4,3],[2,5,2],[2,6,0],[3,0,2],[3,3,1],[3,4,1],[3,6,0],[4,0,2],[4,4,1],[4,6,0],[5,0,3],[5,2,1],[5,3,2],[6,4,1],[6,5,1]]},{"R":8,"C":8,"indices":[[0,1,0],[0,2,2],[0,3,3],[0,6,1],[0,7,0],[1,0,0],[1,3,1],[2,6,1],[3,3,2],[3,4,0],[3,5,3],[3,7,1],[4,1,1],[4,2,2],[4,6,2],[4,7,3],[5,0,3],[5,3,2],[5,4,0],[5,6,2],[5,7,2],[6,2,3],[6,3,3],[6,4,1],[6,5,1],[6,7,2],[7,7,3]]}];
+const NOMS = ["Grille simple","Grille intermédiaire","Grille difficile"];
+const CLE_STOCK = "sentier-" + GRILLES.map(g => g.R).join("") + "-" + TEXTE_CHIFFRE.slice(0, 8);
+const NS = "http://www.w3.org/2000/svg";
+
+/* Arêtes : horizontales (R+1)×C puis verticales R×(C+1) */
+function geo(g) {
+  const E = [], R = g.R, C = g.C;
+  for (let r = 0; r <= R; r++) for (let c = 0; c < C; c++) E.push([r, c, r, c + 1]);
+  for (let r = 0; r < R; r++) for (let c = 0; c <= C; c++) E.push([r, c, r + 1, c]);
+  const h = (r, c) => r * C + c, v = (r, c) => (R + 1) * C + r * (C + 1) + c;
+  const autourCase = (r, c) => [h(r, c), h(r + 1, c), v(r, c), v(r, c + 1)];
+  return { E, h, v, autourCase };
+}
+const GEO = GRILLES.map(geo);
+const neuf = () => ({ niveau: 0, plateaux: GRILLES.map((g, k) => Array(GEO[k].E.length).fill(0)), resolues: [] });
+let etat = neuf();
+try { const s = JSON.parse(localStorage.getItem(CLE_STOCK)); if (s && s.plateaux && s.plateaux.length === GRILLES.length) etat = s; } catch (e) {}
+const sauver = () => { try { localStorage.setItem(CLE_STOCK, JSON.stringify(etat)); } catch (e) {} };
+
+const $ = id => document.getElementById(id);
+const M = 0.5;  /* marge autour de la grille, en unités de case */
+let svg, calqueAretes, elsAretes = [];
+
+function balises() {
+  $("balises").innerHTML = GRILLES.map(() => '<span class="balise"><i></i><i></i></span>').join("");
+  [...$("balises").children].forEach((b, i) => {
+    b.classList.toggle("fait", i < etat.resolues.length);
+    b.classList.toggle("actif", i === etat.niveau && etat.resolues.length < GRILLES.length);
+  });
+}
+const el = (t, a) => { const e = document.createElementNS(NS, t); for (const k in a) e.setAttribute(k, a[k]); return e; };
+
+function construire() {
+  const g = GRILLES[etat.niveau], { E } = GEO[etat.niveau];
+  svg = el("svg", { class: "grille", viewBox: `${-M} ${-M} ${g.C + 2 * M} ${g.R + 2 * M}`, role: "img",
+    "aria-label": `Grille de ${g.R} sur ${g.C}` });
+  for (const [r, c, k] of g.indices) {
+    const t = el("text", { x: c + .5, y: r + .54, "font-size": .5 }); t.textContent = k; svg.appendChild(t);
+  }
+  calqueAretes = el("g", {}); svg.appendChild(calqueAretes);
+  elsAretes = E.map(([r1, c1, r2, c2]) => {
+    const grp = el("g", {});
+    grp.appendChild(el("line", { x1: c1, y1: r1, x2: c2, y2: r2, stroke: "var(--gr)", "stroke-width": .15, "stroke-linecap": "round", class: "trait" }));
+    const mx = (c1 + c2) / 2, my = (r1 + r2) / 2, d = .09;
+    grp.appendChild(el("path", { d: `M${mx - d} ${my - d}L${mx + d} ${my + d}M${mx + d} ${my - d}L${mx - d} ${my + d}`,
+      stroke: "var(--croix)", "stroke-width": .05, "stroke-linecap": "round", class: "croix" }));
+    calqueAretes.appendChild(grp); return grp;
+  });
+  const pts = el("g", {});
+  for (let r = 0; r <= g.R; r++) for (let c = 0; c <= g.C; c++) pts.appendChild(el("circle", { cx: c, cy: r, r: .07, fill: "var(--point)" }));
+  svg.appendChild(pts);
+  $("plateau").innerHTML = ""; $("plateau").appendChild(svg);
+  brancher();
+  $("etape").textContent = `${NOMS[etat.niveau]}, ${g.R}×${g.C}`;
+  $("message").textContent = ""; $("message").className = "message";
+  elsAretes.forEach((_, i) => rendre(i)); majCompte(); balises();
+}
+function rendre(i) {
+  const v = etat.plateaux[etat.niveau][i], grp = elsAretes[i];
+  grp.children[0].style.display = v === 1 ? "" : "none";
+  grp.children[1].style.display = v === 2 ? "" : "none";
+}
+function majCompte() {
+  const n = etat.plateaux[etat.niveau].filter(v => v === 1).length;
+  $("compte").textContent = `Segments tracés : ${n}`;
+  $("verifier").disabled = n < 4;
+}
+function poser(i, v) {
+  const p = etat.plateaux[etat.niveau]; if (p[i] === v) return;
+  p[i] = v; rendre(i); $("message").textContent = ""; $("message").className = "message";
+}
+
+function brancher() {
+  const g = GRILLES[etat.niveau], G = GEO[etat.niveau];
+  const pos = ev => { const pt = svg.createSVGPoint(); pt.x = ev.clientX; pt.y = ev.clientY;
+    const q = pt.matrixTransform(svg.getScreenCTM().inverse()); return { x: q.x, y: q.y }; };
+  const areteProche = ({ x, y }) => {
+    const rx = Math.round(x), ry = Math.round(y), dx = Math.abs(x - rx), dy = Math.abs(y - ry);
+    if (dy <= dx) { const c = Math.floor(x); if (ry >= 0 && ry <= g.R && c >= 0 && c < g.C) return G.h(ry, c); }
+    else { const r = Math.floor(y); if (rx >= 0 && rx <= g.C && r >= 0 && r < g.R) return G.v(r, rx); }
+    return null;
+  };
+  const pointProche = ({ x, y }) => {
+    const r = Math.round(y), c = Math.round(x);
+    if (r < 0 || r > g.R || c < 0 || c > g.C || Math.hypot(x - c, y - r) > .32) return null;
+    return [r, c];
+  };
+  const entre = (a, b) => {
+    if (a[0] === b[0] && Math.abs(a[1] - b[1]) === 1) return G.h(a[0], Math.min(a[1], b[1]));
+    if (a[1] === b[1] && Math.abs(a[0] - b[0]) === 1) return G.v(Math.min(a[0], b[0]), a[1]);
+    return null;
+  };
+  let geste = null;
+  svg.addEventListener("pointerdown", ev => {
+    ev.preventDefault(); svg.setPointerCapture(ev.pointerId);
+    const p = pos(ev); geste = { depart: p, dernier: pointProche(p), mode: null, trace: false };
+  });
+  svg.addEventListener("pointermove", ev => {
+    if (!geste) return;
+    const q = pointProche(pos(ev)); if (!q) return;
+    if (!geste.dernier) { geste.dernier = q; return; }
+    if (q[0] === geste.dernier[0] && q[1] === geste.dernier[1]) return;
+    /* pas intermédiaires si le doigt va vite en ligne droite */
+    const pas = [];
+    if (q[0] === geste.dernier[0]) { const s = Math.sign(q[1] - geste.dernier[1]); for (let c = geste.dernier[1]; c !== q[1]; c += s) pas.push(G.h(q[0], Math.min(c, c + s))); }
+    else if (q[1] === geste.dernier[1]) { const s = Math.sign(q[0] - geste.dernier[0]); for (let r = geste.dernier[0]; r !== q[0]; r += s) pas.push(G.v(Math.min(r, r + s), q[1])); }
+    else { geste.dernier = q; return; }
+    const P = etat.plateaux[etat.niveau];
+    if (geste.mode === null) geste.mode = P[pas[0]] === 1 ? 0 : 1;
+    pas.forEach(i => poser(i, geste.mode));
+    geste.trace = true; geste.dernier = q;
+  });
+  const fin = () => {
+    if (!geste) return;
+    if (!geste.trace) { const i = areteProche(geste.depart); if (i !== null) poser(i, (etat.plateaux[etat.niveau][i] + 1) % 3); }
+    geste = null; majCompte(); sauver();
+  };
+  svg.addEventListener("pointerup", fin);
+  svg.addEventListener("pointercancel", () => { geste = null; majCompte(); sauver(); });
+}
+
+/* Vérification par les règles uniquement : le fichier ne contient pas la solution. */
+function valide(k) {
+  const g = GRILLES[k], G = GEO[k], P = etat.plateaux[k];
+  for (const [r, c, n] of g.indices) if (G.autourCase(r, c).filter(i => P[i] === 1).length !== n) return false;
+  const adj = new Map();
+  G.E.forEach(([r1, c1, r2, c2], i) => {
+    if (P[i] !== 1) return;
+    const a = r1 + "," + c1, b = r2 + "," + c2;
+    if (!adj.has(a)) adj.set(a, []); if (!adj.has(b)) adj.set(b, []);
+    adj.get(a).push(b); adj.get(b).push(a);
+  });
+  if (adj.size === 0) return false;
+  for (const l of adj.values()) if (l.length !== 2) return false;
+  const depart = adj.keys().next().value, vus = new Set([depart]), pile = [depart];
+  while (pile.length) for (const y of adj.get(pile.pop())) if (!vus.has(y)) { vus.add(y); pile.push(y); }
+  return vus.size === adj.size;
+}
+const empreinte = k => GRILLES[k].R + "x" + GRILLES[k].C + ":" + etat.plateaux[k].map(v => v === 1 ? 1 : 0).join("");
+
+$("verifier").addEventListener("click", () => {
+  const m = $("message");
+  if (!valide(etat.niveau)) {
+    m.textContent = "Ce tracé ne forme pas encore le bon sentier. Vérifiez chaque chiffre et que la boucle est unique et fermée.";
+    m.className = "message non";
+    const P = $("plateau"); P.classList.remove("secoue"); void P.offsetWidth; P.classList.add("secoue");
+    return;
+  }
+  etat.resolues[etat.niveau] = empreinte(etat.niveau);
+  if (etat.niveau < GRILLES.length - 1) {
+    etat.niveau++; sauver(); construire();
+    m.textContent = "Boucle validée. Voici la grille suivante."; m.className = "message ok";
+  } else { sauver(); terminer(); }
+});
+$("effacer").addEventListener("click", () => {
+  etat.plateaux[etat.niveau].fill(0); elsAretes.forEach((_, i) => rendre(i)); majCompte(); sauver();
+  $("message").textContent = ""; $("message").className = "message";
+});
+
+/* Les adresses du texte final deviennent des liens ; le reste reste du texte. */
+function afficherTexte(el, s) {
+  el.textContent = ""; let p = 0;
+  for (const m of s.matchAll(/https?:\/\/[^\s<>"']+/g)) {
+    const u = m[0].replace(/[.,;:!?)»]+$/, ""), a = document.createElement("a");
+    a.href = u; a.textContent = u;
+    el.append(s.slice(p, m.index), a); p = m.index + u.length;
+  }
+  el.append(s.slice(p));
+}
+
+function terminer() {
+  $("jeu").hidden = true; $("fin").hidden = false; balises();
+  $("etape").textContent = "Trois grilles sur trois";
+  const t = $("texte"); t.textContent = "Déchiffrement…";
+  setTimeout(() => {
+    let r = null;
+    try { r = Chiffre.dechiffrer(TEXTE_CHIFFRE, etat.resolues.join("|")); } catch (e) {}
+    afficherTexte(t, r === null ? "Le texte n'a pas pu être déchiffré. Rejouez depuis le début." : r);
+  }, 30);
+}
+$("copier").addEventListener("click", async () => {
+  try { await navigator.clipboard.writeText($("texte").textContent); $("copier").textContent = "Texte copié"; }
+  catch (e) { const s = getSelection(), rg = document.createRange(); rg.selectNodeContents($("texte")); s.removeAllRanges(); s.addRange(rg); }
+});
+$("rejouer").addEventListener("click", () => { etat = neuf(); sauver(); $("fin").hidden = true; $("jeu").hidden = false; $("copier").textContent = "Copier le texte"; construire(); });
+
+document.title = TITRE; $("titre").textContent = TITRE;
+if (etat.resolues.length === GRILLES.length) terminer(); else construire();
+</script>
+</body>
+</html>
